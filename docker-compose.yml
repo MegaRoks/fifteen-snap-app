@@ -1,0 +1,75 @@
+services:
+  zipline:
+    image: ghcr.io/diced/zipline:latest
+    container_name: zipline
+    environment:
+      - CORE_SECRET=${ZIPLINE_SECRET}
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:5432/${DATABASE_NAME}
+    volumes:
+      - ./uploads:/zipline/uploads
+      - ./public:/zipline/public
+      - ./themes:/zipline/themes
+    ports:
+      - ${ZIPLINE_PORT}:${ZIPLINE_PORT}
+    networks:
+      - main_network
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./uploads:/videos
+    ports:
+      - ${N8N_PORT}:${N8N_PORT}
+    networks:
+      - main_network
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  ffmpeg:
+    build:
+      context: ./services/ffmpeg
+      dockerfile: Dockerfile
+    container_name: ffmpeg
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+      - FFMPEG_PORT=${FFMPEG_PORT}
+    volumes:
+      - ./uploads:/videos
+    ports:
+      - ${FFMPEG_PORT}:${FFMPEG_PORT}
+    networks:
+      - main_network
+    restart: unless-stopped
+
+  database:
+    image: postgres:latest
+    container_name: database
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - ${DATABASE_PORT}:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - main_network
+
+networks:
+  main_network:
+    driver: bridge
+
+volumes:
+  n8n_data:
+  postgres_data:

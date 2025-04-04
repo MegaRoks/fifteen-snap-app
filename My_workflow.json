@@ -1,0 +1,254 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "file-upload",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        -20
+      ],
+      "id": "68b83b81-d21d-4290-b323-0fcccbf8d66b",
+      "name": "Webhook",
+      "webhookId": "884e9988-7884-481b-8777-7fd60db6d981"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "90d39a1f-08f6-4b54-9052-0585d465f31e",
+              "name": "fileName",
+              "value": "={{$json[\"body\"][\"data\"][\"file\"][\"name\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1900,
+        -20
+      ],
+      "id": "89efd7e0-1f22-4886-acd9-24a145219826",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{$json[\"fileName\"]}}",
+        "options": {
+          "fileName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        2260,
+        -20
+      ],
+      "id": "1c0bd6b9-762d-4164-8b05-47d778479c8f",
+      "name": "Read/Write Files from Disk",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ffmpeg:8081/convert",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=fileName",
+              "value": "={{$json[\"fileName\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2080,
+        -20
+      ],
+      "id": "d16f2840-baa8-462c-b56a-3b70a6823a7d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "@fifteensnap",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2440,
+        -20
+      ],
+      "id": "41e0a07e-cf3a-48be-8115-ddd2f3de0fe5",
+      "name": "Telegram",
+      "webhookId": "9dfc9d22-4ce8-4c41-b9ff-13efd121a941",
+      "credentials": {
+        "telegramApi": {
+          "id": "5fKmcquVqhiCatrR",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "data": {
+              "file": {
+                "name": "sDAkyQ.mp4"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "fileName": "sDAkyQ.mp4"
+        }
+      }
+    ],
+    "HTTP Request": [
+      {
+        "json": {
+          "fileName": "Ik8eQd.MOV"
+        }
+      }
+    ],
+    "Read/Write Files from Disk": [
+      {
+        "json": {
+          "mimeType": "video/mp4",
+          "fileType": "video",
+          "fileName": "data",
+          "directory": "/videos",
+          "fileExtension": "mp4",
+          "fileSize": "5.38 MB"
+        }
+      }
+    ],
+    "Telegram": [
+      {
+        "json": {
+          "ok": true,
+          "result": {
+            "message_id": 13,
+            "sender_chat": {
+              "id": -1002481071850,
+              "title": "Fifteen Snap",
+              "username": "fifteensnap",
+              "type": "channel"
+            },
+            "chat": {
+              "id": -1002481071850,
+              "title": "Fifteen Snap",
+              "username": "fifteensnap",
+              "type": "channel"
+            },
+            "date": 1741881492,
+            "video": {
+              "duration": 16,
+              "width": 720,
+              "height": 1280,
+              "file_name": "data",
+              "mime_type": "video/mp4",
+              "thumbnail": {
+                "file_id": "AAMCAgADIQYABJPiJuoAAw1n0wABlNPIGXyOj7-oGwX1V9hweigAAqBrAALrdJlKTlRNODQZiMkBAAdtAAM2BA",
+                "file_unique_id": "AQADoGsAAut0mUpy",
+                "file_size": 10153,
+                "width": 180,
+                "height": 320
+              },
+              "thumb": {
+                "file_id": "AAMCAgADIQYABJPiJuoAAw1n0wABlNPIGXyOj7-oGwX1V9hweigAAqBrAALrdJlKTlRNODQZiMkBAAdtAAM2BA",
+                "file_unique_id": "AQADoGsAAut0mUpy",
+                "file_size": 10153,
+                "width": 180,
+                "height": 320
+              },
+              "file_id": "BAACAgIAAyEGAAST4ibqAAMNZ9MAAZTTyBl8jo-_qBsF9VfYcHooAAKgawAC63SZSk5UTTg0GYjJNgQ",
+              "file_unique_id": "AgADoGsAAut0mUo",
+              "file_size": 5378281
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62188a3c-d7fc-403e-9ee5-3820046a274b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5d61275b9bb2f572fca00e071f9182cf96ec4ebaca182366e9a2301556cb4cd6"
+  },
+  "id": "ZMmljVhg2VYir9L0",
+  "tags": []
+}
