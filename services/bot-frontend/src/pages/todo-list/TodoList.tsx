@@ -1,8 +1,8 @@
-import {Card, List, Typography} from "antd";
+import {useState} from "react";
+import {List, Grid, ListItem, ListItemText, Button, Box, Typography, CircularProgress} from "@mui/material";
 import {baseApi} from "../../store/api";
 import {StatusType} from "./model";
-import {Header} from "./components/Header.tsx";
-import {useState} from "react";
+import {Header} from "./components/header";
 
 export function TodoList() {
     const [filterTitle, setFilterTitle] = useState<string>('');
@@ -19,25 +19,58 @@ export function TodoList() {
     };
 
     return (
-        <List
-            header={<Header onSearch={handleSearch}/>}
-            footer={<div>Footer</div>}
-            bordered
-            loading={todoListIsLoading}
-            dataSource={data}
-            style={{width: '100%', maxWidth: '800px', margin: '0 auto'}}
-            renderItem={(todo) => (
-                <List.Item style={{width: '100%'}}>
-                    <Typography.Link href={`/todos/${todo.id}`} style={{width: '100%'}}>
-                        <Card style={{width: '100%', backgroundColor: todoColor[todo.status]}}>
-                            <Typography.Title level={4} style={{color: 'black', margin: 0}}>
-                                {todo.title}
-                            </Typography.Title>
-                        </Card>
-                    </Typography.Link>
-                </List.Item>
-            )}
-        />
+        <Grid container direction="column" spacing={2} my={2}>
+            <Grid size={12}>
+                <Header onSearch={handleSearch}/>
+            </Grid>
+            <Grid size={12}>
+                {todoListIsLoading ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%',
+                            py: 4,
+                        }}
+                    >
+                        <CircularProgress color="success"/>
+                    </Box>
+                ) : data && data.length > 0 ? (
+                    <List>
+                        {data.map((todo) => (
+                            <ListItem
+                                key={todo.id}
+                                sx={{
+                                    backgroundColor: todoColor[todo.status],
+                                    mb: 1,
+                                    borderRadius: 1,
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <ListItemText primary={todo.title}/>
+                                <Button
+                                    color="warning"
+                                    variant="contained"
+                                    size="small"
+                                    href={`/todos/${todo.id}`}
+                                >
+                                    Details
+                                </Button>
+                            </ListItem>
+                        ))}
+                    </List>
+                ) : (
+                    <Box sx={{p: 2}}>
+                        <Typography variant="h6" color="text.secondary">
+                            Empty List
+                        </Typography>
+                    </Box>
+                )}
+            </Grid>
+        </Grid>
     )
 }
 

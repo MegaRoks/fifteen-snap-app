@@ -1,63 +1,96 @@
-import {useNavigate} from "react-router-dom";
-import {Button, Card, Form, Input} from "antd";
-import {ArrowLeftOutlined} from '@ant-design/icons';
-import {baseApi} from "../../store/api";
-import {Todo} from "./model";
+import React from 'react';
+import {useNavigate} from 'react-router-dom';
+import {
+    Card,
+    CardHeader,
+    CardContent,
+    CardActions,
+    Box,
+    Button,
+    TextField,
+    CircularProgress
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import {baseApi} from '../../store/api';
+import {Todo} from './model';
 
 export function TodoCreate() {
     const navigate = useNavigate();
     const [createTodo, {isLoading: createTodoIsLoading}] = baseApi.useCreateTodoMutation();
 
-    const onFinish = (values: Todo) => {
-        createTodo(values);
-        navigate(-1);
-    };
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const title = formData.get('title') as string;
+        if (!title) return;
 
-    const onFinishFailed = (errorInfo: unknown) => {
-        console.log('Failed:', errorInfo);
+        try {
+            await createTodo({title} as Todo).unwrap();
+            navigate(-1);
+        } catch (error) {
+            console.error('Failed:', error);
+        }
     };
 
     return (
-        <Card
-            title="Create Todo"
-            loading={createTodoIsLoading}
-            extra={
-                <Button
-                    type="link"
-                    icon={<ArrowLeftOutlined style={{fontSize: '16px'}}/>}
-                    onClick={() => navigate(-1)}
-                >
-                    Back
-                </Button>
-            }
-            style={{width: '100%', maxWidth: '600px', margin: '0 auto'}}
-        >
-            <Form
-                name="todo"
-                labelCol={{span: 8}}
-                wrapperCol={{span: 16}}
-                style={{width: "100%"}}
-                initialValues={{
-                    title: '',
-                }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-            >
-                <Form.Item
-                    name="title"
-                    rules={[{required: true, message: 'Please input title!'}]}
-                >
-                    <Input placeholder="Enter title"/>
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Save
+        <Card sx={{width: '100%', maxWidth: 600, mx: 'auto', mt: 4, position: 'relative'}}>
+            <CardHeader
+                title="Create Todo"
+                action={
+                    <Button
+                        startIcon={<ArrowBackIcon fontSize="small"/>}
+                        onClick={() => navigate(-1)}
+                    >
+                        Back
                     </Button>
-                </Form.Item>
-            </Form>
+                }
+            />
+            {createTodoIsLoading && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        bgcolor: 'rgba(255,255,255,0.7)',
+                        zIndex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <CircularProgress/>
+                </Box>
+            )}
+            <CardContent>
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit}
+                    noValidate
+                    sx={{mt: 1}}
+                >
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Enter title"
+                        name="title"
+                        defaultValue=""
+                        size="small"
+                    />
+                    <CardActions sx={{p: 0, mt: 2}}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            disabled={createTodoIsLoading}
+                        >
+                            Save
+                        </Button>
+                    </CardActions>
+                </Box>
+            </CardContent>
         </Card>
-    )
+    );
 }
-

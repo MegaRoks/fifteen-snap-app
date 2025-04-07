@@ -10,8 +10,8 @@ export const routesData: RouteObject[] = [
         element: <PageLayout/>,
         children: [
             {
-                path: '',
-                element: <Navigate to="todos" replace/>,
+                path: '/',
+                element: <Navigate to="/todos" replace/>,
             },
             {
                 path: "/todos",

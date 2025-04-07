@@ -1,10 +1,10 @@
 import {Outlet} from 'react-router-dom';
-import {Layout} from "antd";
+import {Container} from '@mui/material';
 
 export function PageLayout() {
     return (
-        <Layout style={{width: '100vw', height: '100vh'}}>
+        <Container maxWidth="md">
             <Outlet/>
-        </Layout>
+        </Container>
     );
 }
