@@ -58,4 +58,4 @@ export function Header({onSearch}: HeaderProps) {
             </Grid>
         </Box>
     );
-};
+}
